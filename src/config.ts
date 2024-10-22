@@ -2,6 +2,12 @@ import { figue } from 'figue';
 
 export const config = figue({
   app: {
+    name: {
+      doc: 'Application name',
+      format: 'string',
+      default: 'Toolbox',
+      env: 'NAME',
+    },
     version: {
       doc: 'Application current version',
       format: 'string',
@@ -63,3 +69,5 @@ export const config = figue({
   })
   .validate()
   .getConfig();
+
+console.log(config);

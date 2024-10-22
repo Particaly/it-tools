@@ -1,6 +1,6 @@
+import type { App } from 'vue';
 import { config } from '@/config';
 import Plausible from 'plausible-tracker';
-import type { App } from 'vue';
 
 export const plausible = {
   install: (app: App) => {

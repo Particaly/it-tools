@@ -1,22 +1,23 @@
-import { reactive, watch, type Ref } from 'vue';
+import { reactive, type Ref, watch } from 'vue';
 
-type UseValidationRule<T> = {
-  validator: (value: T) => boolean;
-  message: string;
-};
+interface UseValidationRule<T> {
+  validator: (value: T) => boolean
+  message: string
+}
 
 function isFalsyOrHasThrown(cb: () => boolean) {
   try {
     return !cb();
-  } catch (_) {
+  }
+  catch (_) {
     return true;
   }
 }
 
-export function useValidation<T>({ source, rules }: { source: Ref<T>; rules: UseValidationRule<T>[] }) {
+export function useValidation<T>({ source, rules }: { source: Ref<T>, rules: UseValidationRule<T>[] }) {
   const state = reactive<{
-    message: string;
-    status: undefined | 'error';
+    message: string
+    status: undefined | 'error'
   }>({
     message: '',
     status: undefined,

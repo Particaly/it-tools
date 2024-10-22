@@ -1,10 +1,3 @@
-<template>
-  <div class="menu-icon-item">
-    <n-icon :component="tool.icon" />
-    <div v-if="tool.isNew" class="badge"></div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import type { ITool } from '@/tools/tool';
 import { useThemeVars } from 'naive-ui';
@@ -16,7 +9,14 @@ const { tool } = toRefs(props);
 const theme = useThemeVars();
 </script>
 
-<style lang="less" scoped>
+<template>
+  <div class="menu-icon-item">
+    <n-icon :component="tool.icon" />
+    <div v-if="tool.isNew" class="badge" />
+  </div>
+</template>
+
+<style lang="scss" scoped>
 .menu-icon-item {
   position: relative;
 

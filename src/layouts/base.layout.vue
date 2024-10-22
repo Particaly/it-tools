@@ -1,80 +1,27 @@
-<script lang="ts" setup>
-import { NIcon, useThemeVars, type MenuGroupOption } from 'naive-ui';
-import { h } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
-import { Heart, Menu2, Home2 } from '@vicons/tabler';
-import { toolsByCategory } from '@/tools';
-import SearchBar from '../components/SearchBar.vue';
-import { useStyleStore } from '@/stores/style.store';
-import HeroGradient from '../assets/hero-gradient.svg?component';
-import MenuLayout from '../components/MenuLayout.vue';
-import NavbarButtons from '../components/NavbarButtons.vue';
-import { config } from '@/config';
-import MenuIconItem from '@/components/MenuIconItem.vue';
-import type { ITool } from '@/tools/tool';
-
-const themeVars = useThemeVars();
-const route = useRoute();
-const styleStore = useStyleStore();
-const version = config.app.version;
-const commitSha = config.app.lastCommitSha.slice(0, 7);
-
-const makeLabel = (tool: ITool) => () => h(RouterLink, { to: tool.path }, { default: () => tool.name });
-const makeIcon = (tool: ITool) => () => h(MenuIconItem, { tool });
-
-const menuOptions: MenuGroupOption[] = toolsByCategory.map((category) => ({
-  label: category.name,
-  key: category.name,
-  type: 'group',
-  children: category.components.map((tool) => ({
-    label: makeLabel(tool),
-    icon: makeIcon(tool),
-    key: tool.name,
-  })),
-}));
-</script>
-
 <template>
-  <menu-layout class="menu-layout" :class="{ isSmallScreen: styleStore.isSmallScreen }">
+  <MenuLayout class="menu-layout" :class="{ isSmallScreen: styleStore.isSmallScreen }">
     <template #sider>
-      <router-link to="/" class="hero-wrapper">
-        <hero-gradient class="gradient" />
+      <RouterLink to="/" class="hero-wrapper">
+        <HeroGradient class="gradient" />
         <div class="text-wrapper">
-          <div class="title">IT - TOOLS</div>
+          <div class="title">{{ name }}</div>
           <div class="divider" />
-          <div class="subtitle">Handy tools for developers</div>
+          <div class="subtitle">工具包</div>
         </div>
-      </router-link>
+      </RouterLink>
 
       <div class="sider-content">
         <n-space v-if="styleStore.isSmallScreen" justify="center">
-          <navbar-buttons />
+          <NavbarButtons />
         </n-space>
 
-        <n-menu
-          class="menu"
-          :value="(route.name as string)"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-          :indent="20"
-        />
+        <n-menu class="menu" :value="String(route.name)" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" :indent="20" />
 
         <div class="footer">
           <div>
-            IT-Tools
+            {{ name }}
 
-            <n-button
-              text
-              tag="a"
-              target="_blank"
-              rel="noopener"
-              type="primary"
-              depth="3"
-              :href="`https://github.com/CorentinTh/it-tools/tree/v${version}`"
-            >
-              v{{ version }}
-            </n-button>
+            <n-button text> v{{ version }} </n-button>
 
             <template v-if="commitSha && commitSha.length > 0">
               -
@@ -93,9 +40,7 @@ const menuOptions: MenuGroupOption[] = toolsByCategory.map((category) => ({
           </div>
           <div>
             © {{ new Date().getFullYear() }}
-            <n-button text tag="a" target="_blank" rel="noopener" type="primary" href="https://github.com/CorentinTh">
-              Corentin Thomasset
-            </n-button>
+            <n-button text> ydys.cc </n-button>
           </div>
         </div>
       </div>
@@ -110,10 +55,10 @@ const menuOptions: MenuGroupOption[] = toolsByCategory.map((category) => ({
           aria-label="Toogle menu"
           @click="styleStore.isMenuCollapsed = !styleStore.isMenuCollapsed"
         >
-          <n-icon size="25" :component="Menu2" />
+          <NIcon size="25" :component="Menu2" />
         </n-button>
 
-        <router-link to="/" #="{ navigate, href }" custom>
+        <RouterLink to="/" #="{ navigate, href }" custom>
           <n-tooltip trigger="hover">
             <template #trigger>
               <n-button
@@ -125,39 +70,70 @@ const menuOptions: MenuGroupOption[] = toolsByCategory.map((category) => ({
                 aria-label="Home"
                 @click="navigate"
               >
-                <n-icon size="25" :component="Home2" />
+                <NIcon size="25" :component="Home2" />
               </n-button>
             </template>
             Home
           </n-tooltip>
-        </router-link>
+        </RouterLink>
 
-        <search-bar />
+        <SearchBar />
 
-        <n-tooltip trigger="hover">
+        <n-tooltip v-if="false" trigger="hover">
           <template #trigger>
-            <n-button
-              type="primary"
-              tag="a"
-              href="https://github.com/sponsors/CorentinTh"
-              rel="noopener"
-              target="_blank"
-            >
-              <n-icon v-if="!styleStore.isSmallScreen" :component="Heart" style="margin-right: 5px" />
+            <n-button type="primary" tag="a" href="https://github.com/sponsors/CorentinTh" rel="noopener" target="_blank">
+              <NIcon v-if="!styleStore.isSmallScreen" :component="Heart" style="margin-right: 5px" />
               Sponsor
             </n-button>
           </template>
           ❤ Support IT Tools developement !
         </n-tooltip>
 
-        <navbar-buttons v-if="!styleStore.isSmallScreen" />
+        <NavbarButtons v-if="!styleStore.isSmallScreen" />
       </div>
       <slot />
     </template>
-  </menu-layout>
+  </MenuLayout>
 </template>
 
-<style lang="less" scoped>
+<script lang="ts" setup>
+import type { ITool } from '@/tools/tool';
+import MenuIconItem from '@/components/MenuIconItem.vue';
+import { config } from '@/config';
+import { useStyleStore } from '@/stores/style.store';
+import { toolsByCategory } from '@/tools';
+import { Heart, Home2, Menu2 } from '@vicons/tabler';
+import { type MenuGroupOption, NIcon, useThemeVars } from 'naive-ui';
+import { h } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
+import HeroGradient from '../assets/hero-gradient.svg?component';
+import MenuLayout from '../components/MenuLayout.vue';
+import NavbarButtons from '../components/NavbarButtons.vue';
+import SearchBar from '../components/SearchBar.vue';
+
+const themeVars = useThemeVars();
+const route = useRoute();
+const styleStore = useStyleStore();
+const version = config.app.version;
+const name = config.app.name;
+const commitSha = config.app.lastCommitSha.slice(0, 7);
+
+const makeLabel = (tool: ITool) => () => h(RouterLink, { to: tool.path }, { default: () => tool.name });
+const makeIcon = (tool: ITool) => () => h(MenuIconItem, { tool });
+
+const menuOptions: MenuGroupOption[] = toolsByCategory.map(category => ({
+  label: category.name,
+  key: category.name,
+  type: 'group',
+  children: category.components.map(tool => ({
+    label: makeLabel(tool),
+    icon: makeIcon(tool),
+    key: tool.name,
+  })),
+}));
+</script>
+
+<style lang="scss" scoped>
 // ::v-deep(.n-layout-scroll-container) {
 //     @percent: 4%;
 //     @position: 25px;

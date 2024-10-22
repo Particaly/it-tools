@@ -1,5 +1,17 @@
+<script setup lang="ts">
+import { useStyleStore } from '@/stores/style.store';
+import { BrandGithub, BrandTwitter, InfoCircle, Moon, Sun } from '@vicons/tabler';
+import { toRefs } from 'vue';
+
+const styleStore = useStyleStore();
+const { isDarkTheme } = toRefs(styleStore);
+</script>
+
 <template>
-  <n-tooltip trigger="hover">
+  <n-tooltip
+    v-if="false"
+    trigger="hover"
+  >
     <template #trigger>
       <n-button
         size="large"
@@ -16,7 +28,7 @@
     Github repository
   </n-tooltip>
 
-  <n-tooltip trigger="hover">
+  <n-tooltip v-if="false" trigger="hover">
     <template #trigger>
       <n-button
         size="large"
@@ -55,16 +67,7 @@
   </n-tooltip>
 </template>
 
-<script setup lang="ts">
-import { useStyleStore } from '@/stores/style.store';
-import { toRefs } from 'vue';
-import { BrandGithub, BrandTwitter, Moon, Sun, InfoCircle } from '@vicons/tabler';
-
-const styleStore = useStyleStore();
-const { isDarkTheme } = toRefs(styleStore);
-</script>
-
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .n-button {
   &:not(:last-child) {
     margin-right: 5px;

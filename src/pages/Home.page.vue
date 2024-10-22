@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toolsWithCategory } from '@/tools';
-import ToolCard from '../components/ToolCard.vue';
 import { useHead } from '@vueuse/head';
+import ToolCard from '../components/ToolCard.vue';
 
 useHead({ title: 'IT Tools - Handy online tools for developers' });
 </script>
@@ -16,7 +16,7 @@ useHead({ title: 'IT Tools - Handy online tools for developers' });
         ]"
         :key="tool.name"
       >
-        <tool-card :tool="tool" />
+        <ToolCard :tool="tool" />
       </n-gi>
     </n-grid>
   </div>

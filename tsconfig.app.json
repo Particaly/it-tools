@@ -1,14 +1,29 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "**/*.d.ts", "node_modules/vite-plugin-pwa/client.d.ts"],
-  "exclude": ["src/**/__tests__/*"],
+  "extends": "@vue/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2021"],
-    "composite": true,
     "baseUrl": ".",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "strict": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
     "paths": {
+      "~/*": ["./*"],
       "@/*": ["./src/*"]
     },
-    "types": ["naive-ui/volar"]
-  }
+    "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar"]
+  },
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "**/*.d.ts", "node_modules/vite-plugin-pwa/client.d.ts"],
+  "exclude": ["src/**/__tests__/*"]
 }

@@ -1,10 +1,36 @@
+<template>
+  <BaseLayout>
+    <div class="tool-layout">
+      <div class="tool-header">
+        <n-h1>
+          {{ route.meta.name }}
+
+          <n-tag v-if="route.meta.isNew" round type="success" :bordered="false" :color="{ color: theme.primaryColor, textColor: theme.tagColor }">
+            New tool
+          </n-tag>
+          <!-- <span class="new-tool-badge">New !</span> -->
+        </n-h1>
+
+        <div class="separator" />
+        <div class="description">
+          {{ route.meta.description }}
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-content">
+      <slot />
+    </div>
+  </BaseLayout>
+</template>
+
 <script lang="ts" setup>
+import type { HeadObject } from '@vueuse/head';
+import { useHead } from '@vueuse/head';
+import { useThemeVars } from 'naive-ui';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import BaseLayout from './base.layout.vue';
-import { useHead } from '@vueuse/head';
-import type { HeadObject } from '@vueuse/head';
-import { computed } from 'vue';
-import { useThemeVars } from 'naive-ui';
 
 const route = useRoute();
 const theme = useThemeVars();
@@ -21,43 +47,11 @@ const head = computed<HeadObject>(() => ({
       content: route.meta.keywords,
     },
   ],
-}));
+}) as any);
 useHead(head);
 </script>
 
-<template>
-  <base-layout>
-    <div class="tool-layout">
-      <div class="tool-header">
-        <n-h1>
-          {{ route.meta.name }}
-
-          <n-tag
-            v-if="route.meta.isNew"
-            round
-            type="success"
-            :bordered="false"
-            :color="{ color: theme.primaryColor, textColor: theme.tagColor }"
-          >
-            New tool
-          </n-tag>
-          <!-- <span class="new-tool-badge">New !</span> -->
-        </n-h1>
-
-        <div class="separator" />
-        <div class="description">
-          {{ route.meta.description }}
-        </div>
-      </div>
-    </div>
-
-    <div class="tool-content">
-      <slot />
-    </div>
-  </base-layout>
-</template>
-
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .tool-content {
   display: flex;
   flex-direction: row;
@@ -73,16 +67,15 @@ useHead(head);
 
 .tool-layout {
   max-width: 600px;
-  margin: 0 auto;
   box-sizing: border-box;
 
   .tool-header {
-    padding: 40px 0;
+    padding: 20px 0;
     width: 100%;
 
     .n-h1 {
       opacity: 0.9;
-      font-size: 40px;
+      font-size: 24px;
       font-weight: 400;
       margin: 0;
       line-height: 1;

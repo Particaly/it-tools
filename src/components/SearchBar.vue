@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { SearchRound } from '@vicons/material';
-import { computed, ref } from 'vue';
-import { deburr } from 'lodash';
 import { tools } from '@/tools';
+import { SearchRound } from '@vicons/material';
+import { deburr } from 'lodash';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -57,7 +57,7 @@ function onSelect(path: string) {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 // ::v-deep(.n-input__border) {
 //     border: none;
 // }
