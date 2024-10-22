@@ -1,6 +1,6 @@
 <template>
   <div class="pdf-marker flex-col h-full w-full">
-    <div class="tool-bar w-full flex gap-10px p-10px bg-white">
+    <div class="tool-bar w-full flex gap-10px p-10px bg-card">
       <n-icon class="press-button" size="22" @click="state.prevPage">
         <n-tooltip>
           <template #trigger>
@@ -48,13 +48,13 @@
     <div ref="container" class="relative flex-1">
       <canvas id="canvas" :width="state.size.width" :height="state.size.height" class="wh-full!"></canvas>
 
-      <div class="absolute-lt w-240px bg-white shadow flex-col h-full overflow-auto">
+      <div class="absolute-lt w-240px bg-card shadow flex-col h-full overflow-auto">
         <div v-for="(t, i) in nodes.renderList" :key="i" class="list-it" :class="{ selected: nodes.current?.source === t }" @click="state.selectNode(t)">
           {{ t.title }}
         </div>
       </div>
 
-      <div class="absolute-tr w-240px bg-white shadow p-12px flex-col">
+      <div class="absolute-tr w-240px bg-card shadow p-12px flex-col">
         <n-form>
           <n-form-item label="标题">
             <n-input v-model:value="nodes.model.title" placeholder="标题" @input="state.whenUpdateInfo"></n-input>
@@ -105,10 +105,13 @@
 import { AddFilled, CloudDownloadOutlined, CloudUploadOutlined, NavigateBeforeRound, NavigateNextRound } from '@vicons/material';
 import { useElementSize } from '@vueuse/core';
 import { fabric } from 'fabric';
+import { useThemeVars } from 'naive-ui';
 import * as fb from './use-fabric';
 import { usePDF } from './use-pdf';
 
 console.log(fabric);
+
+const theme = useThemeVars();
 
 const container = ref();
 const pdf = usePDF();
@@ -342,6 +345,10 @@ onMounted(() => {
       color: #18a058;
       background: rgba(#18a058, 0.12);
     }
+  }
+
+  .bg-card {
+    background: v-bind('theme.cardColor')
   }
 }
 </style>
