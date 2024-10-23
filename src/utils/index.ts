@@ -286,3 +286,4 @@ function repeat(source, length) {
   return result;
 }
 export { random, repeat };
+export * from './typeof';

@@ -48,13 +48,13 @@
     <div ref="container" class="relative flex-1">
       <canvas id="canvas" :width="state.size.width" :height="state.size.height" class="wh-full!"></canvas>
 
-      <div class="absolute-lt w-240px bg-card shadow flex-col h-full overflow-auto">
+      <div ref="el" class="absolute-lt w-240px bg-card shadow flex-col h-full overflow-auto">
         <div v-for="(t, i) in nodes.renderList" :key="i" class="list-it" :class="{ selected: nodes.current?.source === t }" @click="state.selectNode(t)">
           {{ t.title }}
         </div>
       </div>
 
-      <div class="absolute-tr w-240px bg-card shadow p-12px flex-col">
+      <div class="absolute-tr w-240px bg-card shadow p-12px flex-col overflow-auto h-full">
         <n-form>
           <n-form-item label="标题">
             <n-input v-model:value="nodes.model.title" placeholder="标题" @input="state.whenUpdateInfo"></n-input>
@@ -74,14 +74,37 @@
               v-model:value="nodes.model.type"
               :options="nodes.options.type"
               placeholder="请选择插入类型"
-              @change="state.whenUpdateInfo"
+              @update:value="state.whenUpdateInfo"
             ></n-select>
           </n-form-item>
           <n-form-item label="用例">
-            <n-input v-model:value="nodes.model.value" placeholder="请输入用例" type="textarea" @input="state.whenUpdateInfo"></n-input>
+            <n-input v-model:value="nodes.model.value" placeholder="请输入用例" @input="state.whenUpdateInfo"></n-input>
+          </n-form-item>
+          <n-form-item v-if="nodes.model.type === 'text'" label="强制渲染">
+            <n-input v-model:value="nodes.model.force" placeholder="强制渲染此处填入的值" @input="state.whenUpdateInfo"></n-input>
           </n-form-item>
           <n-form-item label="数据源">
             <n-input v-model:value="nodes.model.key" placeholder="key" @input="state.whenUpdateInfo"></n-input>
+          </n-form-item>
+          <n-form-item v-if="nodes.model.type === 'text'" label="是否格式化">
+            <n-select
+              v-model:value="nodes.model.format"
+              :options="nodes.options.format"
+              placeholder="是否格式化"
+              @update:value="state.whenUpdateInfo"
+            ></n-select>
+          </n-form-item>
+          <n-form-item v-if="nodes.model.type === 'text'" label="截断内容">
+            <div class="flex gap-8px">
+              <n-input v-model:value="nodes.model.spliceFrom" placeholder="起始下标" @input="state.whenUpdateInfo"></n-input>
+              <n-input v-model:value="nodes.model.spliceTo" placeholder="终止下标" @input="state.whenUpdateInfo"></n-input>
+            </div>
+          </n-form-item>
+          <n-form-item v-if="nodes.model.type === 'text'" label="显示条件">
+            <div class="flex gap-8px items-center">
+              <n-select v-model:value="nodes.model.compare" :options="nodes.options.compare" @update:value="state.whenUpdateInfo"></n-select>
+              <n-input v-model:value="nodes.model.equals" placeholder="比较的值" @input="state.whenUpdateInfo"></n-input>
+            </div>
           </n-form-item>
           <n-form-item v-if="nodes.model.type === 'text'" label="字体大小" @input="state.whenUpdateInfo">
             <n-input v-model:value="nodes.model.size" placeholder="字体大小"><template #suffix>px</template></n-input>
@@ -102,10 +125,12 @@
 </template>
 
 <script setup lang="ts">
+import * as utils from '@/utils';
 import { AddFilled, CloudDownloadOutlined, CloudUploadOutlined, NavigateBeforeRound, NavigateNextRound } from '@vicons/material';
 import { useElementSize } from '@vueuse/core';
 import { fabric } from 'fabric';
 import { useThemeVars } from 'naive-ui';
+import { useDraggable } from 'vue-draggable-plus';
 import * as fb from './use-fabric';
 import { usePDF } from './use-pdf';
 
@@ -115,6 +140,8 @@ const theme = useThemeVars();
 
 const container = ref();
 const pdf = usePDF();
+const el = ref();
+
 const nodes = reactive<any>({
   current: null,
   list: [],
@@ -128,12 +155,18 @@ const nodes = reactive<any>({
     size: '16',
     gap: '8',
     type: 'text',
+    format: '',
+    force: '',
     width: '100',
     height: '100',
     value: '',
     key: '',
     title: '',
     page: 0,
+    spliceFrom: '0',
+    spliceTo: '0',
+    compare: '',
+    equals: '',
   },
   options: {
     type: [
@@ -146,6 +179,49 @@ const nodes = reactive<any>({
         value: 'image',
       },
     ],
+    format: [
+      {
+        label: '不进行格式化',
+        value: '',
+      },
+      {
+        label: '日期：YYYY-MM-DD HH:mm:ss',
+        value: 'YYYY-MM-DD HH:mm:ss',
+      },
+    ],
+    compare: [
+      {
+        label: '无条件渲染',
+        value: '',
+      },
+      {
+        label: '不相等',
+        value: 'not-equal',
+      },
+      {
+        label: '相等',
+        value: 'equal',
+      },
+      {
+        label: '包含',
+        value: 'contains',
+      },
+      {
+        label: '不包含',
+        value: 'not-contains',
+      },
+    ],
+  },
+});
+
+useDraggable(el, nodes.list, {
+  animation: 150,
+  onUpdate({ oldIndex, newIndex }) {
+    const iox = nodes.list.findIndex(w => w === nodes.renderList[oldIndex!]);
+    const inx = nodes.list.findIndex(w => w === nodes.renderList[newIndex!]);
+    const tox = nodes.list[iox];
+    nodes.list.splice(iox, 1);
+    nodes.list.splice(inx, 0, tox);
   },
 });
 
@@ -209,11 +285,44 @@ const state = reactive<any>({
   addNode(x, y) {
     const option = {
       ...nodes.model,
-      x,
-      y,
+      x: utils.isEmpty(x) ? nodes.model.x : x,
+      y: utils.isEmpty(y) ? nodes.model.y : y,
       page: state.page,
     };
     state.createNode(option);
+  },
+  getValue(source) {
+    const needSlice = Number(source.spliceFrom) || Number(source.spliceTo);
+    let value = needSlice ? source.value.slice(source.spliceFrom, source.spliceTo) : source.value;
+
+    switch (source.compare) {
+      case '': break;
+      case 'not-equal':
+        if (value === source.equals) {
+          return '';
+        }
+        break;
+      case 'equal':
+        if (value !== source.equals) {
+          return '';
+        }
+        break;
+      case 'contains':
+        if (!value.includes(source.equals)) {
+          return '';
+        }
+        break;
+      case 'not-contains':
+        if (value.includes(source.equals)) {
+          return '';
+        }
+        break;
+      default: break;
+    }
+
+    value = source.force || value;
+
+    return value;
   },
   createNode(source) {
     const center = fb.getCenter(state.canvas);
@@ -221,9 +330,17 @@ const state = reactive<any>({
     source.y = source.y || center.y;
     source.title = source.title || '默认文字';
     source.value = source.value || '默认文字';
+    source.format = source.format || '';
+    source.spliceFrom = source.spliceFrom || '0';
+    source.spliceTo = source.spliceTo || '0';
+    source.compare = source.compare || '';
+    source.equals = source.equals || '';
+
+    const value = state.getValue(source);
+
     let node: any;
     if (source.type === 'text') {
-      node = new fabric.Textbox(source.value || '默认文字', {
+      node = new fabric.Textbox(value, {
         left: Number(source.x),
         top: Number(source.y),
         fontSize: source.size,
@@ -263,9 +380,13 @@ const state = reactive<any>({
   },
   whenUpdateInfo() {
     if (!nodes.current) return;
+    const source = nodes.current.source;
+    Object.assign(nodes.current.source, nodes.model);
+
     if (nodes.current.type === 'textbox') {
+      const value = state.getValue(source);
       nodes.current.setOptions({
-        text: nodes.model.value,
+        text: value,
         left: Number(nodes.model.x),
         top: Number(nodes.model.y),
         fontSize: Number(nodes.model.size),
@@ -283,9 +404,6 @@ const state = reactive<any>({
       nodes.current.setSrc(img, () => state.canvas.renderAll());
     }
 
-    const target = nodes.list.find(t => t === nodes.current.source);
-    console.log(target);
-    Object.assign(nodes.current.source, nodes.model);
     state.canvas.renderAll();
   },
 
